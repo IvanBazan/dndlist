@@ -11,7 +11,7 @@ export default function List({items}) {
 
     return (
         <ul style={styles.ul}>
-            {items.map(item => <ListItem key={item.number} {...item}/>)}
+            {items.map((item, index) => <ListItem key={index} item={item}/>)}
         </ul>
     )
 }

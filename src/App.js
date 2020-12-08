@@ -1,40 +1,79 @@
-import React, {useState} from 'react'
-import List from './List/List'
-import {Context} from "./Context";
+import React, {useState, useRef} from 'react'
+import {Map, YMaps} from "react-yandex-maps";
+import AddItem from "./List/AddItem";
 
 
+const styles = {
+    map: {
+        width: '600px',
+        height: '800px'
+    }
+}
 
 function App() {
-    // const  initialDnDState = {
-    //     draggedFrom: null,
-    //     draggedTo: null,
-    //     isDragging: false,
-    //     originalOrder: [],
-    //     updatedOrder: []
-    // }
 
-    const [items, setItems] = useState([{number: 5, title: "🇦🇷 Argentina"},
-        {number: 2, title: "🤩 YASS"},
-        {number: 3, title: "👩🏼‍💻 Tech Girl"},
-        {number: 4, title: "💋 Lipstick & Code"},
-        {number: 1, title: "💃🏼 Latina"}])
+    const draggingItem = useRef();
+    const dragOverItem = useRef();
 
-    const sortItems = () => {
-        const sortedItems = [...items].sort((a, b) => {
-            return a.number - b.number
-        })
-        setItems(sortedItems)
+    const [list, setList] = useState([]);
+
+    const [center, setCenter] = useState([55.75, 37.57]);
+
+    const handleDragStart = (e, position) => {
+        draggingItem.current = position;
+        console.log(e.target.innerHTML);
+    };
+
+    function addItem(title) {
+        setList(list.concat({title: title, center: center}))
+    }
+
+    const handleDragEnter = (e, position) => {
+        dragOverItem.current = position;
+        console.log(e.target.innerHTML);
+    };
+
+    const handleDragEnd = (e) => {
+        const listCopy = [...list];
+        const draggingItemContent = listCopy[draggingItem.current];
+        listCopy.splice(draggingItem.current, 1);
+        listCopy.splice(dragOverItem.current, 0, draggingItemContent);
+
+        draggingItem.current = null;
+        dragOverItem.current = null;
+        setList(listCopy);
+    };
+
+    const getCenter = e => {
+        setCenter(e.get('target').getCenter())
+        console.log(center)
     }
 
     return (
-        <Context.Provider value={{sortItems}}>
-            <div className="wrapper">
-                <h1>Drag and Drop</h1>
-                <List items={items}/>
-                <button onClick={sortItems} value='update'>Сортировка</button>
+        <div className="wrapper">
+            <h1>Drag and Drop</h1>
+            <div className="content">
+            <ul>
+                {list &&
+                list.map((item, index) => (
+                    <li
+                        onDragStart={(e) => handleDragStart(e, index)}
+                        onDragEnter={(e) => handleDragEnter(e, index)}
+                        onDragEnd={handleDragEnd}
+                        key={index}
+                        draggable
+                    >
+                        {item.title}
+                    </li>
+                ))}
+                <AddItem onCreate={addItem}/>
+            </ul>
+            <YMaps>
+                <Map defaultState={{ center: center, zoom: 12 }} style={styles.map} onBoundsChange={e => getCenter(e)}/>
+            </YMaps>
             </div>
-        </Context.Provider>
-    )
+        </div>
+    );
 }
 
 export default App;

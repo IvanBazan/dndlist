@@ -14,7 +14,22 @@ code {
 
 
 .wrapper {
-    padding-top: 5rem;
-    margin: 0 auto;
-    width: 600px;
+    margin: 4%;
+    font-weight: bold;
+}
+
+.content {
+    display: flex;
+    padding: 2rem;
+    border: 1px black solid
+}
+
+ul {
+    font-size: 3em;
+    width: 46%;
+}
+
+li {
+    cursor: pointer;
+    width: max-content;
 }
